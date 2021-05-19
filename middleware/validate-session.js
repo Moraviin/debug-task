@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../db').import('../models/user');
 
-module.exports = function (req, res, next) {
-  if (req.method == 'OPTIONS') {
+module.exports = (req, res, next) => {
+  if (req.method === 'OPTIONS') {
     next(); // allowing options as a method for request
   } else {
     const sessionToken = req.headers.authorization;
