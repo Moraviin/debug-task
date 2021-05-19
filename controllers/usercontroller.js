@@ -4,17 +4,22 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../db').import('../models/user');
 
-router.post('/signup', (req, res) => {
+router.post('/signup', async (req, res) => {
+  const user = await User.findOne({ where: { username: req.body.user.username } });
+  if (user) {
+    res.status(409).send({ error: 'User with this username already exist' });
+    return;
+  }
   User.create({
     full_name: req.body.user.full_name,
     username: req.body.user.username,
     passwordHash: bcrypt.hashSync(req.body.user.password, 8),
     email: req.body.user.email,
   }).then(
-    function signupSuccess(user) {
-      const token = jwt.sign({ id: user.id }, 'lets_play_sum_games_man', { expiresIn: 60 * 60 * 24 });
+    function signupSuccess(userData) {
+      const token = jwt.sign({ id: userData.id }, 'lets_play_sum_games_man', { expiresIn: 60 * 60 * 24 });
       res.status(200).json({
-        user,
+        user: userData,
         token,
       });
     },
